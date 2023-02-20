@@ -1,0 +1,5 @@
+---
+install_dir: /var/lib/aptly
+download_concurrency: 4
+disable_sign: false
+disable_verify: false

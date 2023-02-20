@@ -1,0 +1,50 @@
+---
+- name: "Setup aptly key"
+  apt_key:
+    id: 78D6517AB92E22947F577996A0546A43624A8331
+    url: https://www.aptly.info/pubkey.txt
+    keyring: /etc/apt/trusted.gpg.d/aptly.gpg
+    state: present
+- name: "Setup aptly repository"
+  apt_repository:
+    repo: 'deb http://repo.aptly.info/ squeeze main'
+    update_cache: true
+    state: present
+    filename: 'aptly'
+- name: "Setup packages"
+  apt:
+    name: ['aptly', 'bzip2', 'gnupg', 'gpgv']
+    state: latest
+- name: "Setup aptly group"
+  group:
+    name: aptly
+    state: present
+- name: "Setup aptly user"
+  user:
+    name: aptly
+    group: aptly
+    groups:
+      - www-data
+    home: '{{ install_dir }}'
+    create_home: true
+    state: present
+- name: "Configure aptly installation directory"
+  file:
+    path: '{{ install_dir }}'
+    owner: aptly
+    group: aptly
+    mode: 0755
+    state: directory
+- name: "Configure aptly files directory"
+  file:
+    path: '{{ install_dir }}/public'
+    owner: www-data
+    group: www-data
+    mode: 0775
+    state: directory
+- name: "Configure aptly"
+  template:
+    src: aptly.conf.j2
+    dest: /etc/aptly.conf
+    owner: root
+    group: root
